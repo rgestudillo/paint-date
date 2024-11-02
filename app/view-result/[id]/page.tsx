@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Loader2 } from "lucide-react"
-
+import Image from 'next/image'
 interface FormData {
     id: string
     image: string
@@ -59,11 +59,11 @@ export default function ViewResult() {
             <div className="space-y-6">
                 <div>
                     <h2 className="text-xl font-semibold mb-2">Uploaded Image</h2>
-                    <img src={formData.image} alt="Uploaded" className="max-w-full h-auto rounded-lg shadow-md" />
+                    <Image src={formData.image} alt="Uploaded" className="max-w-full h-auto rounded-lg shadow-md" />
                 </div>
                 <div>
                     <h2 className="text-xl font-semibold mb-2">Vector Image</h2>
-                    <img src={formData.vectorImage} alt="Vector" className="max-w-full h-auto rounded-lg shadow-md" />
+                    <Image src={formData.vectorImage} alt="Vector" className="max-w-full h-auto rounded-lg shadow-md" />
                 </div>
                 <div>
                     <h2 className="text-xl font-semibold mb-2">Questionnaire Answers</h2>
