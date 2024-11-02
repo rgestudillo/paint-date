@@ -20,7 +20,7 @@ export default function StepOne() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-h-[50vh]">
       <Label htmlFor="image-upload">Upload an image</Label>
       <Input id="image-upload" type="file" accept="image/*" onChange={handleImageUpload} />
       {formData.image && <img src={formData.image} alt="Uploaded" className="mt-4 max-w-full h-auto" />}

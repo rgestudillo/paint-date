@@ -54,7 +54,7 @@ export default function Home() {
   return (
     <FormProvider>
       <div className="container mx-auto p-4 max-w-md">
-        <h1 className="text-2xl font-bold mb-8">Multi-step Form</h1>
+        <h1 className="text-4xl mt-4 font-bold mb-8 text-center">Complete the Steps</h1>
         <FormSteps />
       </div>
     </FormProvider>
