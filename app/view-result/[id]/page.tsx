@@ -1,55 +1,61 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { Loader2 } from "lucide-react"
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { Loader2 } from "lucide-react";
+
+interface QuestionAnswer {
+    question: string;
+    answer: string;
+}
+
 interface FormData {
-    id: string
-    image: string
-    vectorImage: string
-    answers: string[]
-    createdAt: string
+    id: string;
+    image: string;
+    vectorImage: string;
+    questionAnswers: QuestionAnswer[];
+    createdAt: string;
 }
 
 export default function ViewResult() {
-    const params = useParams()
-    const [formData, setFormData] = useState<FormData | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+    const params = useParams();
+    const [formData, setFormData] = useState<FormData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`/api/get-form/${params.id}`)
+                const response = await fetch(`/api/get-form/${params.id}`);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch form data')
+                    throw new Error('Failed to fetch form data');
                 }
-                const data = await response.json()
-                setFormData(data)
+                const data = await response.json();
+                setFormData(data);
             } catch (error) {
-                setError('Failed to load form data')
+                setError('Failed to load form data');
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        }
+        };
 
-        fetchData()
-    }, [params.id])
+        fetchData();
+    }, [params.id]);
 
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-        )
+        );
     }
 
     if (error) {
-        return <div className="text-center text-red-500">{error}</div>
+        return <div className="text-center text-red-500">{error}</div>;
     }
 
     if (!formData) {
-        return <div className="text-center">No data found</div>
+        return <div className="text-center">No data found</div>;
     }
 
     return (
@@ -67,9 +73,9 @@ export default function ViewResult() {
                 <div>
                     <h2 className="text-xl font-semibold mb-2">Questionnaire Answers</h2>
                     <ul className="space-y-2">
-                        {formData.answers.map((answer, index) => (
+                        {formData.questionAnswers.map((item, index) => (
                             <li key={index} className="bg-gray-100 p-2 rounded">
-                                <strong>Question {index + 1}:</strong> {answer}
+                                <strong>{item.question}:</strong> {item.answer}
                             </li>
                         ))}
                     </ul>
@@ -79,5 +85,5 @@ export default function ViewResult() {
                 </div>
             </div>
         </div>
-    )
+    );
 }

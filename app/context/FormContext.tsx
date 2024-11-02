@@ -2,10 +2,15 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 
+interface QuestionAnswer {
+    question: string;
+    answer: string;
+}
+
 interface FormData {
-    image: string | null
-    vectorImage: string | null
-    answers: string[]
+    image: string | null;
+    vectorImage: string | null;
+    questionAnswers: QuestionAnswer[];
 }
 
 interface FormContextType {
@@ -21,8 +26,11 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [formData, setFormData] = useState<FormData>({
         image: null,
         vectorImage: null,
-        answers: Array(10).fill(''),
-    })
+        questionAnswers: Array(5).fill({ question: '', answer: '' }).map((_, index) => ({
+            question: '',
+            answer: ''
+        })),
+    });
     const [currentStep, setCurrentStep] = useState(1)
 
     return (
