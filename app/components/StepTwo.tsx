@@ -2,7 +2,6 @@
 
 import { useFormContext } from '../context/FormContext'
 import { Button } from "@/components/ui/button"
-import Image from 'next/image'
 export default function StepTwo() {
     const { formData, setFormData, setCurrentStep } = useFormContext()
 
@@ -17,7 +16,7 @@ export default function StepTwo() {
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold">Generate Vector Image</h2>
-            {formData.image && <Image src={formData.image} alt="Uploaded" className="mt-4 max-w-full h-auto" />}
+            {formData.image && <img src={formData.image} alt="Uploaded" className="mt-4 max-w-full h-auto" />}
             <Button onClick={handleGenerateVector}>Generate Vector Image</Button>
         </div>
     )

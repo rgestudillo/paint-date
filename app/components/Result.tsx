@@ -26,8 +26,9 @@ export default function Result() {
                 body: JSON.stringify(formData),
             })
             const data = await response.json()
+            console.log("data is: ", data)
             if (data.success) {
-                setUniqueLink(`${window.location.origin}/view-result/${data.uniqueId}`)
+                setUniqueLink(`${window.location.origin}/view-result/${data.id}`)
             } else {
                 console.error('Failed to submit form')
             }
