@@ -135,6 +135,16 @@ export default function ViewResult() {
         return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
     };
 
+    const handleDownloadImage = () => {
+        if (!canvasRef.current) return;
+
+        const canvas = canvasRef.current;
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'paint_date_result.png';
+        link.click();
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -159,6 +169,11 @@ export default function ViewResult() {
             <div className="mb-8 text-center">
                 <h2 className="text-xl font-semibold mb-2">Generated Vector Image</h2>
                 <canvas ref={canvasRef} className="w-full max-w-lg h-auto rounded-lg shadow-md mx-auto"></canvas>
+            </div>
+
+            {/* Download Button */}
+            <div className="text-center mb-6">
+                <Button onClick={handleDownloadImage}>Download Image</Button>
             </div>
 
             {/* Questionnaire */}
