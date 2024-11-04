@@ -36,7 +36,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setFormData((prev) => ({
             ...prev,
             questionAnswers: colors.map((color, index) => ({
-                question: `Question for color ${index + 1}`,
+                question: '',
                 answer: '',
                 color, // Store the selected color for reference in StepThree
             })),
