@@ -3,20 +3,19 @@
 import { useFormContext } from '../context/FormContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export default function StepThree() {
     const { formData, setFormData, setCurrentStep } = useFormContext();
 
     const handleQuestionChange = (index: number, value: string) => {
         const newQuestionAnswers = [...formData.questionAnswers];
-        newQuestionAnswers[index].question = value; // Update the question for the specific index
+        newQuestionAnswers[index].question = value;
         setFormData(prev => ({ ...prev, questionAnswers: newQuestionAnswers }));
     };
 
     const handleAnswerChange = (index: number, value: string) => {
         const newQuestionAnswers = [...formData.questionAnswers];
-        newQuestionAnswers[index].answer = value; // Update the answer for the specific question
+        newQuestionAnswers[index].answer = value;
         setFormData(prev => ({ ...prev, questionAnswers: newQuestionAnswers }));
     };
 
@@ -24,6 +23,8 @@ export default function StepThree() {
         setCurrentStep(4);
     };
 
+
+    console
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold">Questionnaire</h2>
@@ -33,14 +34,13 @@ export default function StepThree() {
                         id={`question-${index}`}
                         value={item.question}
                         onChange={(e) => handleQuestionChange(index, e.target.value)}
-                        placeholder={`Enter question ${index + 1}`}
+                        placeholder={`Enter question for color ${index + 1}`}
                     />
-
                     <Input
                         id={`answer-${index}`}
                         value={item.answer}
                         onChange={(e) => handleAnswerChange(index, e.target.value)}
-                        placeholder={`Answer to ${item.question}`}
+                        placeholder={`Answer for question ${index + 1}`}
                     />
                 </div>
             ))}
