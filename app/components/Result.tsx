@@ -18,6 +18,7 @@ export default function Result() {
     const handleSubmit = async () => {
         setIsSubmitting(true)
         try {
+            formData.image = null;
             const response = await fetch('/api/submit-form', {
                 method: 'POST',
                 headers: {
