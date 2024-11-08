@@ -214,7 +214,7 @@ export default function ViewResult() {
                             <div className="flex items-center space-x-2">
                                 <input
                                     type="text"
-                                    value={userAnswers[index]}
+                                    value={userAnswers[index] || (item.isAnswered ? item.answer : '')}
                                     onChange={(e) => handleAnswerChange(index, e.target.value)}
                                     className={`p-2 w-full rounded border ${feedback[index] === 'correct' ? 'border-green-500 bg-green-50' :
                                         feedback[index] === 'incorrect' ? 'border-red-500 bg-red-50' :
