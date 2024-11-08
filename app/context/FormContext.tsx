@@ -5,7 +5,8 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface QuestionAnswer {
     question: string;
     answer: string;
-    color: string;  // Add color field
+    color: string;  // Color field for reference
+    isAnswered: boolean; // Add isAnswered field
 }
 
 interface FormData {
@@ -35,10 +36,11 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updateQuestions = (colors: string[]) => {
         setFormData((prev) => ({
             ...prev,
-            questionAnswers: colors.map((color, index) => ({
+            questionAnswers: colors.map((color) => ({
                 question: '',
                 answer: '',
-                color, // Store the selected color for reference in StepThree
+                color,          // Store the selected color
+                isAnswered: false, // Default isAnswered to false
             })),
         }));
     };

@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 interface QuestionAnswer {
     question: string;
     answer: string;
-    color: string; // Include color property
+    color: string;
+    isAnswered?: boolean;
 }
 
 interface FormData {
@@ -36,9 +37,28 @@ export default function ViewResult() {
                     throw new Error('Failed to fetch form data');
                 }
                 const data = await response.json();
-                setFormData(data);
-                setUserAnswers(data.questionAnswers.map(() => ""));
-                setFeedback(data.questionAnswers.map(() => null));
+
+                const questionAnswersWithDefaults = data.questionAnswers.map((qa: QuestionAnswer) => ({
+                    ...qa,
+                    isAnswered: qa.isAnswered ?? false,
+                }));
+
+                setFormData({
+                    ...data,
+                    questionAnswers: questionAnswersWithDefaults,
+                });
+
+                setUserAnswers(questionAnswersWithDefaults.map(() => ""));
+                setFeedback(
+                    questionAnswersWithDefaults.map((qa: QuestionAnswer) => (qa.isAnswered ? 'correct' : null))
+                );
+
+
+                // Reveal colors for already answered questions
+                questionAnswersWithDefaults.forEach((qa: QuestionAnswer) => {
+                    if (qa.isAnswered) revealColor(qa.color);
+                });
+
             } catch (error) {
                 setError('Failed to load form data');
             } finally {
@@ -49,7 +69,19 @@ export default function ViewResult() {
         fetchData();
     }, [params.id]);
 
-    // Load and display the grayscale image initially
+    const updateFormData = async (updatedAnswers: QuestionAnswer[]) => {
+        try {
+            const response = await fetch(`/api/update-form/${params.id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ questionAnswers: updatedAnswers }),
+            });
+            if (!response.ok) throw new Error('Failed to update form data');
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
         if (formData?.vectorImage && canvasRef.current) {
             const canvas = canvasRef.current;
@@ -62,17 +94,14 @@ export default function ViewResult() {
                     canvas.width = image.width;
                     canvas.height = image.height;
                     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-                    // Save the original image data for color reveals
                     originalImageData.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-                    // Convert to grayscale
                     const grayscaleData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     for (let i = 0; i < grayscaleData.data.length; i += 4) {
                         const avg = 0.3 * grayscaleData.data[i] + 0.59 * grayscaleData.data[i + 1] + 0.11 * grayscaleData.data[i + 2];
-                        grayscaleData.data[i] = avg;     // Red
-                        grayscaleData.data[i + 1] = avg; // Green
-                        grayscaleData.data[i + 2] = avg; // Blue
+                        grayscaleData.data[i] = avg;
+                        grayscaleData.data[i + 1] = avg;
+                        grayscaleData.data[i + 2] = avg;
                     }
                     ctx.putImageData(grayscaleData, 0, 0);
                 }
@@ -80,7 +109,6 @@ export default function ViewResult() {
         }
     }, [formData?.vectorImage]);
 
-    // Reveal only the specified color in the image
     const revealColor = (targetColor: string) => {
         if (!canvasRef.current || !originalImageData.current) return;
 
@@ -90,18 +118,16 @@ export default function ViewResult() {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const targetRgb = hexToRgb(targetColor);
 
-        // Loop through each pixel and check if it matches the target color
         for (let i = 0; i < imageData.data.length; i += 4) {
             const r = originalImageData.current.data[i];
             const g = originalImageData.current.data[i + 1];
             const b = originalImageData.current.data[i + 2];
 
-            // If the pixel color matches the target color, reveal it
             if (r === targetRgb[0] && g === targetRgb[1] && b === targetRgb[2]) {
                 imageData.data[i] = r;
                 imageData.data[i + 1] = g;
                 imageData.data[i + 2] = b;
-                imageData.data[i + 3] = 255; // Fully opaque
+                imageData.data[i + 3] = 255;
             }
         }
         ctx.putImageData(imageData, 0, 0);
@@ -123,13 +149,19 @@ export default function ViewResult() {
             return newFeedback;
         });
 
-        // If the answer is correct, reveal the color
         if (isCorrect) {
             revealColor(formData.questionAnswers[index].color);
+            setFormData((prevFormData) => {
+                if (!prevFormData) return prevFormData;
+                const updatedQuestionAnswers = prevFormData.questionAnswers.map((qa, idx) =>
+                    idx === index ? { ...qa, isAnswered: true } : qa
+                );
+                updateFormData(updatedQuestionAnswers);
+                return { ...prevFormData, questionAnswers: updatedQuestionAnswers };
+            });
         }
     };
 
-    // Helper function to convert hex color to RGB
     const hexToRgb = (hex: string): [number, number, number] => {
         const bigint = parseInt(hex.slice(1), 16);
         return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
@@ -164,19 +196,15 @@ export default function ViewResult() {
     return (
         <div className="container mx-auto p-4 max-w-3xl">
             <h1 className="text-2xl font-bold mb-6 text-center">Form Submission Result</h1>
-
-            {/* Vector Image on Canvas */}
             <div className="mb-8 text-center">
                 <h2 className="text-xl font-semibold mb-2">Generated Vector Image</h2>
                 <canvas ref={canvasRef} className="w-full max-w-lg h-auto rounded-lg shadow-md mx-auto"></canvas>
             </div>
 
-            {/* Download Button */}
             <div className="text-center mb-6">
                 <Button onClick={handleDownloadImage}>Download Image</Button>
             </div>
 
-            {/* Questionnaire */}
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-semibold mb-4">Questionnaire</h2>
                 <ul className="space-y-6">
@@ -193,25 +221,20 @@ export default function ViewResult() {
                                             'border-gray-300'
                                         }`}
                                     placeholder="Your answer"
+                                    disabled={item.isAnswered}
                                 />
-                                <Button onClick={() => handleSubmitAnswer(index)}>
-                                    Submit
+                                <Button onClick={() => handleSubmitAnswer(index)} disabled={item.isAnswered}>
+                                    {item.isAnswered ? "Answered" : "Submit"}
                                 </Button>
                             </div>
                             {feedback[index] && (
-                                <p className={`mt-2 text-sm font-semibold ${feedback[index] === 'correct' ? 'text-green-600' : 'text-red-600'
-                                    }`}>
-                                    {feedback[index] === 'correct' ? 'Correct!' : 'Incorrect, try again.'}
+                                <p className={`mt-1 text-sm ${feedback[index] === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
+                                    {feedback[index] === 'correct' ? 'Correct!' : 'Incorrect!'}
                                 </p>
                             )}
                         </li>
                     ))}
                 </ul>
-            </div>
-
-            {/* Submission Date */}
-            <div className="text-sm text-gray-500 mt-6 text-center">
-                Submitted on: {new Date(formData.createdAt).toLocaleString()}
             </div>
         </div>
     );
